@@ -12,3 +12,35 @@
         name: nginx
         state: started
         enabled: yes
+    - name: Deploying the nginx 
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+            <html>
+            <head><title>This my ansible nginx</title></head>
+            <body>
+                <h1>Hello welcome to nginx</h1>
+            </body>
+            </html>
+    - name: Configure nginx default site
+      copy:
+        dest: /etc/nginx/sites-available/default
+        content: |
+            server {
+                listen 80 default_server;
+                listen [::]:80 default_server;
+
+                root /var/www/html;
+                index index.html
+                server_name _;
+                location / {
+                  try_files $uri $uri/ = 404;
+                  }
+                }
+      notify:
+          - Restart Nginx
+  handlers:
+    - name: Restart Nginx
+      service:
+         name: nginx
+         state: restarted
